@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Civic Issue Detection</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+    body {
+        margin: 0;
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+        min-height: 100vh;
+    }
+
+    header {
+        background: linear-gradient(90deg, #1e3a8a, #2563eb);
+        color: #ffffff;
+        padding: 22px;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    header h1 {
+        margin: 0;
+        font-size: 26px;
+    }
+
+    header p {
+        margin-top: 6px;
+        font-size: 14px;
+        opacity: 0.9;
+    }
+
+    .container {
+        max-width: 760px;
+        margin: 35px auto;
+        background: #ffffff;
+        padding: 30px;
+        border-radius: 14px;
+        box-shadow: 0 14px 32px rgba(0,0,0,0.12);
+    }
+
+    h2 {
+        text-align: center;
+        color: #1e3a8a;
+        margin-bottom: 24px;
+    }
+
+    label {
+        font-weight: 600;
+        color: #334155;
+        margin-top: 18px;
+        display: block;
+    }
+
+    input[type="file"],
+    input[type="text"] {
+        width: 100%;
+        padding: 12px;
+        margin-top: 8px;
+        border-radius: 8px;
+        border: 1.5px solid #cbd5e1;
+        font-size: 14px;
+        background: #f8fafc;
+    }
+
+    input:focus {
+        outline: none;
+        border-color: #2563eb;
+        background: #ffffff;
+    }
+
+    button {
+        width: 100%;
+        padding: 14px;
+        margin-top: 26px;
+        background: #2563eb;
+        color: #ffffff;
+        border: none;
+        border-radius: 10px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+        background: #1e40af;
+        box-shadow: 0 8px 18px rgba(37,99,235,0.4);
+    }
+
+    .error {
+        display: none;
+        margin-top: 20px;
+        padding: 15px;
+        border-radius: 10px;
+        background: #fee2e2;
+        color: #991b1b;
+        font-weight: 600;
+    }
+
+    .result {
+        margin-top: 28px;
+        padding: 22px;
+        border-radius: 12px;
+        background: #f1f5ff;
+        border-left: 6px solid #2563eb;
+        display: none;
+    }
+
+    .result h3 {
+        margin-top: 0;
+        color: #1e3a8a;
+    }
+
+    .result p {
+        margin: 8px 0;
+        font-size: 15px;
+        color: #0f172a;
+    }
+
+    footer {
+        text-align: center;
+        padding: 14px;
+        font-size: 13px;
+        color: #475569;
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1>AI Civic Issue Detection & Notification</h1>
+    <p>Smart identification of public issues using AI</p>
+</header>
+
+<div class="container">
+    <h2>Report a Civic Issue</h2>
+
+    <label>Upload Image of the Issue</label>
+    <input type="file" id="imageInput" accept="image/*">
+
+    <label>Location (Auto-detected or manual)</label>
+    <input type="text" id="locationInput" placeholder="Enter or allow location access">
+
+    <button onclick="detectIssue()">Detect Issue & Notify Authority</button>
+
+    <!-- Error Box -->
+    <div class="error" id="errorBox"></div>
+
+    <!-- Result Box -->
+    <div class="result" id="resultBox">
+        <h3>Detection Result</h3>
+        <p><strong>Detected Problem:</strong> <span id="problem"></span></p>
+        <p><strong>Location:</strong> <span id="location"></span></p>
+        <p><strong>Responsible Authority:</strong> <span id="authority"></span></p>
+        <p><strong>Status:</strong> Notification Sent Successfully</p>
+        <p><strong>Complaint ID:</strong> <span id="complaintId"></span></p>
+    </div>
+</div>
+
+<footer>
+    © 2026 AI Civic Assistance Platform | Academic Project
+</footer>
+
+<script>
+function detectIssue() {
+
+    // Reset messages
+    document.getElementById("errorBox").style.display = "none";
+    document.getElementById("resultBox").style.display = "none";
+
+    const imageInput = document.getElementById("imageInput");
+    const locationInput = document.getElementById("locationInput");
+
+    // Check image uploaded
+    if (!imageInput.files || imageInput.files.length === 0) {
+        showError("Please upload an image of the civic issue.");
+        return;
+    }
+
+    const file = imageInput.files[0];
+
+    // Check valid image
+    if (!file.type.startsWith("image/")) {
+        showError("Uploaded file is not a valid image.");
+        return;
+    }
+
+    // Check location entered
+    if (locationInput.value.trim() === "") {
+        showError("Location is required to report the issue.");
+        return;
+    }
+
+    // Simulated AI relevance check
+    const keywords = ["road", "pothole", "garbage", "street", "drain"];
+    const fileName = file.name.toLowerCase();
+
+    const isRelevant = keywords.some(word => fileName.includes(word));
+
+    if (!isRelevant) {
+        showError("The uploaded image does not appear to be a civic issue. Please upload a valid image.");
+        return;
+    }
+
+    // If all validations pass
+    processDetection();
+}
+
+function processDetection() {
+
+    const detectedProblem = "Road Pothole";
+    const responsibleAuthority = "Road Maintenance Department";
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                showResult(
+                    position.coords.latitude.toFixed(4),
+                    position.coords.longitude.toFixed(4),
+                    detectedProblem,
+                    responsibleAuthority
+                );
+            },
+            function() {
+                // Fallback demo location
+                showResult("13.0827", "80.2707", detectedProblem, responsibleAuthority);
+            }
+        );
+    } else {
+        showResult("13.0827", "80.2707", detectedProblem, responsibleAuthority);
+    }
+}
+
+function showResult(lat, lon, problem, authority) {
+
+    document.getElementById("locationInput").value =
+        "Lat: " + lat + ", Lon: " + lon;
+
+    document.getElementById("problem").innerText = problem;
+    document.getElementById("authority").innerText = authority;
+    document.getElementById("location").innerText =
+        "Lat: " + lat + ", Lon: " + lon;
+
+    document.getElementById("complaintId").innerText =
+        "CIV-" + Math.floor(Math.random() * 100000);
+
+    document.getElementById("resultBox").style.display = "block";
+}
+
+function showError(message) {
+    const errorBox = document.getElementById("errorBox");
+    errorBox.innerText = message;
+    errorBox.style.display = "block";
+}
+</script>
+
+</body>
+</html>
