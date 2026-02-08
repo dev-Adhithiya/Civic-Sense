@@ -194,46 +194,54 @@ function detectIssue() {
         showError("Location is required to report the issue.");
         return;
     }
-
-    // Simulated AI relevance check
-    const keywords = ["road", "pothole", "garbage", "street", "drain"];
-    const fileName = file.name.toLowerCase();
-
-    const isRelevant = keywords.some(word => fileName.includes(word));
-
-    if (!isRelevant) {
-        showError("The uploaded image does not appear to be a civic issue. Please upload a valid image.");
-        return;
-    }
-
     // If all validations pass
     processDetection();
 }
 
-function processDetection() {
+async function processDetection() {
+    document.getElementById("resultBox").style.display = "none";
+    document.getElementById("errorBox").innerText = "Analyzing... Please wait.";
+    document.getElementById("errorBox").style.display = "block";
 
-    const detectedProblem = "Road Pothole";
-    const responsibleAuthority = "Road Maintenance Department";
+    const imageInput = document.getElementById("imageInput");
+    const locationInput = document.getElementById("locationInput");
 
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-            function(position) {
-                showResult(
-                    position.coords.latitude.toFixed(4),
-                    position.coords.longitude.toFixed(4),
-                    detectedProblem,
-                    responsibleAuthority
-                );
-            },
-            function() {
-                // Fallback demo location
-                showResult("13.0827", "80.2707", detectedProblem, responsibleAuthority);
-            }
+    const formData = new FormData();
+    formData.append("file", imageInput.files[0]);
+    formData.append("location", locationInput.value);
+
+    try {
+        const response = await fetch("http://127.0.0.1:8000/analyze", {
+            method: "POST",
+            body: formData
+        });
+
+        if (!response.ok) throw new Error("Backend error");
+
+        const data = await response.json();
+        showResult(
+            data.location,
+            data.location,       // lat/lon string combined
+            data.issue_type,
+            authorityFromIssue(data.issue_type)
         );
-    } else {
-        showResult("13.0827", "80.2707", detectedProblem, responsibleAuthority);
+
+    } catch (err) {
+        showError("Failed to submit complaint. Backend not reachable.");
     }
 }
+
+function authorityFromIssue(issue) {
+    const map = {
+        "Pothole": "Road Maintenance Department",
+        "Broken Road": "Municipal Engineering Dept",
+        "Garbage Overflow": "Sanitation Department",
+        "Streetlight Issue": "Electrical Maintenance",
+        "Water Leakage": "Water Supply Board"
+    };
+    return map[issue] || "Local Authority";
+}
+
 
 function showResult(lat, lon, problem, authority) {
 
@@ -241,7 +249,8 @@ function showResult(lat, lon, problem, authority) {
         "Lat: " + lat + ", Lon: " + lon;
 
     document.getElementById("problem").innerText = problem;
-    document.getElementById("authority").innerText = authority;
+    document.getElementById("authority").innerText =
+    authorityFromIssue(data.issue_type);
     document.getElementById("location").innerText =
         "Lat: " + lat + ", Lon: " + lon;
 
