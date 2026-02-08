@@ -1,13 +1,17 @@
-# Define data structures (optional type hints for clarity)
-from typing import Optional
+from pydantic import BaseModel
+from typing import Literal
 
-class SensorData:
-    def __init__(self, sensor_id: str, temperature: float, humidity: float, co2: Optional[float] = None):
-        self.sensor_id = sensor_id
-        self.temperature = temperature
-        self.humidity = humidity
-        self.co2 = co2
-
-class VisionRequest:
-    def __init__(self, image_url: str):
-        self.image_url = image_url
+class CivicIssueResult(BaseModel):
+    issue_detected: bool
+    issue_type: Literal[
+        "Pothole",
+        "Broken Road",
+        "Garbage Overflow",
+        "Streetlight Issue",
+        "Water Leakage",
+        "None"
+    ]
+    severity: Literal["Low", "Medium", "High"]
+    confidence: float
+    explanation: str
+    location: str
