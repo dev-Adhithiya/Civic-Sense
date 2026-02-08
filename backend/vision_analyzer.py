@@ -2,7 +2,18 @@ import base64
 from openai import OpenAI
 from schemas import CivicIssueResult
 
-client = OpenAI()
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # Load environment variables
+
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    raise ValueError("OPENAI_API_KEY not found. Check your .env file or environment variables.")
+
+client = OpenAI(api_key=api_key)
+
+
 
 SYSTEM_PROMPT = """
 You are an AI system designed to detect civic infrastructure issues from images.
