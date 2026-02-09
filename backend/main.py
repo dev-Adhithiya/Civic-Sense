@@ -1,13 +1,13 @@
 from fastapi import FastAPI, UploadFile, Form
 from vision_analyzer import analyze_image
 import uuid
-
+app = FastAPI()
 @app.get("/")
 def root():
     return {"status": "Civic Sense backend running"}
 
 
-app = FastAPI()
+
 
 @app.post("/detect")
 async def detect_issue(
