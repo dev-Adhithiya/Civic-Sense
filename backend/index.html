@@ -467,46 +467,55 @@
         });
 
         function displayResults(data) {
-            // Set complaint ID
-            document.getElementById('complaintId').textContent = data.complaint_id;
+        const issuesContainer = document.getElementById("issuesContainer");
+        const authoritiesContainer = document.getElementById("authoritiesContainer");
+        const authoritiesList = document.getElementById("authoritiesList");
+        const severityBadge = document.getElementById("severityBadge");
+        const complaintId = document.getElementById("complaintId");
 
-            // Set severity badge
-            const severityBadge = document.getElementById('severityBadge');
-            severityBadge.textContent = `${data.severity} Severity (${data.severity_score}/10)`;
-            severityBadge.className = `severity-badge severity-${data.severity.toLowerCase()}`;
+        // reset visibility
+        severityBadge.style.display = "inline-block";
+        authoritiesContainer.style.display = "block";
 
-            // Display issues
-            const issuesContainer = document.getElementById('issuesContainer');
-            if (data.issue_detected && data.detections.length > 0) {
-                issuesContainer.innerHTML = `
-                    <div class="issues-list">
-                        <strong>🔍 Detected Issues:</strong>
-                        ${data.detections.map(issue => `
-                            <div class="issue-item">
-                                <span class="issue-label">${issue.label}</span>
-                                <span class="confidence">Confidence: ${(issue.confidence * 100).toFixed(0)}%</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            } else {
-                issuesContainer.innerHTML = `
-                    <div class="no-issues">
-                        <div class="no-issues-icon">✅</div>
-                        <p>No civic issues detected in this image</p>
-                    </div>
-                `;
-            }
+        // ❌ unrelated image → NO municipal corporation
+        if (data.issue_detected === false) {
+            complaintId.textContent = "Report Invalid";
+            severityBadge.style.display = "none";
+            authoritiesContainer.style.display = "none";
 
-            // Display authorities
-            const authoritiesList = document.getElementById('authoritiesList');
-            authoritiesList.innerHTML = data.assigned_authorities
-                .map(auth => `<span class="authority-tag">${auth}</span>`)
-                .join('');
-
-            // Show results
-            results.style.display = 'block';
+            issuesContainer.innerHTML = `
+                <div class="no-issues" style="color:#ff4444;">
+                    <div class="no-issues-icon">⚠️</div>
+                    <strong>Image Rejected</strong>
+                    <p>${data.rejection_reason || "This image does not show a civic infrastructure issue."}</p>
+                </div>
+            `;
         }
+        // ✅ valid civic issue
+        else {
+            complaintId.textContent = data.complaint_id;
+
+            severityBadge.textContent =
+                `${data.severity} Severity (${data.severity_score}/10)`;
+            severityBadge.className =
+                `severity-badge severity-${data.severity.toLowerCase()}`;
+
+            issuesContainer.innerHTML = `
+                ${data.detections.map(issue => `
+                    <div class="issue-item">
+                        <span>${issue.label}</span>
+                        <span>${(issue.confidence * 100).toFixed(0)}%</span>
+                    </div>
+                `).join("")}
+            `;
+
+            authoritiesList.innerHTML = data.assigned_authorities
+                .map(a => `<span class="authority-tag">${a}</span>`)
+                .join("");
+        }
+
+        results.style.display = "block";
+    }
 
         function showError(message) {
             errorMessage.textContent = message;
