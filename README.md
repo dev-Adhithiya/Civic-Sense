@@ -1,25 +1,29 @@
-# CivicSense AI
+Civic Sense – AI Powered Civic Issue Detection System
 
-## Overview
-CivicSense is a vision-based system that detects civic infrastructure issues from user-uploaded images using a Vision API.
+Civic Sense is an AI-based civic infrastructure monitoring system that detects public issues from uploaded images and automatically routes complaints to relevant authorities.
 
-## Architecture
-- Frontend: Image upload and result visualization
-- Backend: API and validation
-- Vision Layer: Prompt-driven multimodal reasoning
+🚀 Features
 
-## API Contract
-POST /analyze  
-Response:
-{
-  "issue_detected": boolean,
-  "issue_type": string,
-  "severity": "Low | Medium | High",
-  "confidence": number,
-  "explanation": string
-}
+Detects multiple civic issues in a single image
 
-## Team Roles
-- LLM Engineer: Vision reasoning and prompt design
-- Backend: API and server logic
-- Frontend: UI and visualization
+Supports:
+
+Pothole
+
+Garbage Overflow
+
+Water Leakage
+
+Open Drain
+
+Streetlight Issue
+
+Automatic severity scoring (1–10 scale)
+
+Department auto-assignment
+
+Unique complaint ID generation
+
+Admin dashboard with data export
+
+Structured API response using FastAPI + Pydantic
